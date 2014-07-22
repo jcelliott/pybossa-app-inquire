@@ -1,0 +1,254 @@
+<div class="row">
+    <!-- Success and Error Messages for the user --> 
+    <div class="col-md-6 col-md-offset-2" style="height:30px;">
+        <div id="success" class="alert alert-success" style="display:none;">
+            <a class="close">×</a>
+            <strong>Thanks!</strong> Your answer has been saved
+        </div>
+        <div id="loading" class="alert alert-info" style="display:none;">
+            <a class="close">×</a>
+            Loading next task...
+        </div>
+        <div id="taskcompleted" class="alert alert-info" style="display:none;">
+            <strong>The task has been completed!</strong> Thanks a lot!
+        </div>
+        <div id="finish" class="alert alert-success" style="display:none;">
+            <strong>Congratulations!</strong> You have participated in all available tasks!
+            <br/>
+            <div class="alert-actions">
+                <a class="btn small" href="/">Go back</a>
+                <a class="btn small" href="/app">or, Check other projects</a>
+            </div>
+        </div>
+        <div id="error" class="alert alert-danger" style="display:none;">
+            <a class="close">×</a>
+            <strong>Error!</strong> Something went wrong, please contact the site administrators
+        </div>
+    </div> <!-- End Success and Error Messages for the user -->
+</div> <!-- End of Row -->
+
+<!--
+    Task DOM for loading the Flickr Images
+    It uses the class="skeleton" to identify the elements that belong to the
+    task.
+-->
+<div class="row skeleton"> <!-- Start Skeleton Row-->
+    <div class="col-md-6 "><!-- Start of Question and Submission DIV (column) -->
+        <h2>Please select the category and sub-category that best describe the subject of this question:</h2>
+        <br/>
+        <div class="col-md-6"><!-- start question div -->
+            <p id="question">Loading question...</p>
+        </div><!-- end question div -->
+        <br/>
+        <div id="answer"> <!-- start answer div -->
+            <div>
+                <select id="category">
+                    <option value="none" disabled selected>Select a category</option>
+                    <option value="ABBR">Abbreviation</option>
+                    <option value="ENTY">Entity</option>
+                    <option value="DESC">Description</option>
+                    <option value="HUM">Human</option>
+                    <option value="LOC">Location</option>
+                    <option value="NUM">Numeric</option>
+                </select>
+                <select id="subcategory">
+                </select>
+            </div>
+            <br/>
+            <div>
+                <button id="submit" class="btn btn-success btn-answer">Submit</button>
+            </div>
+            <br/>
+            <!-- If the user clicks this button, the saved answer will be value="NotKnown"-->
+            <!-- <button class="btn btn&#45;answer" value='NotKnown'><i class="fa fa&#45;question&#45;circle"></i> I don't know</button> -->
+        </div><!-- end answer div -->
+        <br />
+        <!-- Feedback items for the user -->
+        <div><!-- status div -->
+          <p>You are working on task: <span id="task-id" class="label label-warning">#</span></p>
+          <p>You have completed <span id="done" class="label label-info"></span> tasks of
+          <span id="total" class="label label-info"></span> total</p>
+          <!-- Progress bar for the user -->
+          <div class="progress progress-striped">
+              <div id="progress" rel="tooltip" title="#" class="progress-bar" style="width: 0%;"  role="progressbar"></div>
+          </div>
+        </div><!-- end status div -->
+    </div><!-- End of Question and Submission DIV (column) -->
+    <br/>
+</div><!-- End of Skeleton Row -->
+
+<script>
+var categories = {  
+    ABBR: {
+        name: "abbreviation",
+        subcategories: {
+            abb: {name: "abbreviation"},
+            exp: {name: "expression abbreviated"},
+        },
+    },
+    ENTY: {
+        name: "entity",
+        subcategories: {
+            animal: {name: "animal"},
+            body: {name: "body and organs"},
+            color: {name: "color"},
+            cremat: {name: "creative", help: "inventions, art, books, and other creative works"},
+            currency: {name: "currency"},
+            dismed: {name: "diseases and medicine"},
+            events: {name: "events"},
+            food: {name: "food and drink"},
+            instru: {name: "musical instrument"},
+            lang: {name: "languages"},
+            letter: {name: "letters", help: "like a-z, not a letter you send"},
+            other: {name: "other entities"},
+            plant: {name: "plant"},
+            product: {name: "product"},
+            religion: {name: "religion"},
+            sport: {name: "sport"},
+            substance: {name: "substance or element"},
+            symbol: {name: "symbol or sign"},
+            techmeth: {name: "technique or method"},
+            termeq: {name: "equivalent term"},
+            veh: {name: "vehicle"},
+            word: {name: "words with a special property"},
+        },
+    },
+    DESC: {
+        name: "description",
+        subcategories: {
+            def: {name: "definition", help: 'Basic definition of something (i.e., "What is X?")'},
+            desc: {name: "description", help: 'Asking for something more than a definition (e.g., "Who was X?"", "What are the traits of X?""'},
+            manner: {name: "manner", help: '"How can I do X?", "How does X work?"'},
+            reason: {name: "reason"},
+        },
+    },
+    HUM: {
+        name: "human",
+        subcategories: {
+            gr: {name: "a group or organization of people"},
+            ind: {name: "an individual"},
+            title: {name: "title of a person"},
+            desc: {name: "description of a person"},
+        },
+    },
+    LOC: {
+        name: "location",
+        subcategories: {
+            city: {name: "city"},
+            country: {name: "country"},
+            mount: {name: "mountain"},
+            other: {name: "other location"},
+            state: {name: "state"},
+        },
+    },
+    NUM: {
+        name: "numeric",
+        subcategories: {
+            code: {name: "code", help: "phone number, postal code, airport code, etc."},
+            count: {name: "number or amount of something"},
+            "date": {name: "date"},
+            dist: {name: "distance and other linear measures"},
+            money: {name: "money and prices"},
+            ord: {name: "order or rank"},
+            other: {name: "other numeric values"},
+            period: {name: "period or duration"},
+            perc: {name: "percent or fraction"},
+            speed: {name: "speed"},
+            temp: {name: "temperature"},
+            size: {name: "size, area, or volume"},
+            weight: {name: "weight"},
+        },
+    },
+};
+
+$("#subcategory").hide();
+$("#submit").prop("disabled", true);
+
+$("#category").on('change', function (evt) {
+    var options = [],
+        category = $("#category").val();
+    $.each(categories[category].subcategories, function (key, obj) {
+        options.push($('<option>', {value: key, title: obj.help}).text(obj.name));
+    });
+    $("#subcategory").empty().append(
+        // add default option first
+        $('<option>', {disabled: "disabled", selected: "selected", value: "none"})
+            .text("Select a sub-category"),
+        // then all the sub-categories
+        options
+    );
+    $("#submit").prop("disabled", true);
+    $("#subcategory").show();
+});
+
+$("#subcategory").on('change', function (evt) {
+    var subcat = $("#subcategory").val();
+    if (subcat !== "none" && subcat !== null) {
+        $("#submit").prop("disabled", false);
+    }
+});
+
+function loadUserProgress() {
+    pybossa.userProgress('inquire').done(function(data){
+        // console.log("userProgress data: ", data);
+        var pct = Math.round((data.done*100)/data.total);
+        $("#progress").css("width", pct.toString() +"%");
+        $("#progress").attr("title", pct.toString() + "% completed!");
+        $("#progress").tooltip({'placement': 'left'}); 
+        $("#total").text(data.total);
+        $("#done").text(data.done);
+    });
+}
+
+pybossa.taskLoaded(function(task, deferred) {
+    console.log("taskLoaded task: ", task);
+    deferred.resolve(task);
+});
+
+pybossa.presentTask(function(task, deferred) {
+    if ( !$.isEmptyObject(task) ) {
+        loadUserProgress();
+        console.log("presentTask task: ", task);
+        $("#question").html(task.info.question).css("font-weight", "bold");
+        $('#task-id').html(task.id);
+        $('#submit').off('click').on('click', function(evt) {
+            var category = $('#category').val(),
+                subcategory = $('#subcategory').val(),
+                answer = category + ":" + subcategory;
+            console.log("answer: ", answer);
+            if (category === "none" || category === null) {
+                alert("You must select a category");
+                return;
+            }
+            if (subcategory === "none" || subcategory === null) {
+                alert("You must select a sub-category");
+                return;
+            }
+            // if (typeof answer != 'undefined') {
+            // pybossa.saveTask(task.id, answer).done(function() {
+                $("#success").fadeIn();
+                setTimeout(function () { $("#success").fadeOut(); }, 1000);
+                $("#subcategory").hide();
+                $("#submit").prop("disabled", true);
+                $("#category").val("none");
+                // deferred.resolve();
+            // });
+            $("#loading").fadeIn(500);
+            deferred.resolve(); // TESTING
+            // }
+            // else {
+            //     $("#error").show();
+            // }
+        });
+        $("#loading").hide();
+    }
+    else {
+        $(".skeleton").hide();
+        $("#loading").hide();
+        $("#finish").fadeIn(500);
+    }
+});
+
+pybossa.run('inquire');
+</script>
+
