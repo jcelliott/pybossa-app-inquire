@@ -59,9 +59,28 @@
                 <button id="submit" class="btn btn-success btn-answer">Submit</button>
             </div>
             <br/>
-            <!-- If the user clicks this button, the saved answer will be value="NotKnown"-->
-            <!-- <button class="btn btn&#45;answer" value='NotKnown'><i class="fa fa&#45;question&#45;circle"></i> I don't know</button> -->
         </div><!-- end answer div -->
+        <br />
+        <div class="accordion" id="accordion1">
+            <div class="accordion-group">
+                <div class="accordion-heading">
+                    <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion1" href="#collapseOne">
+                        Question type hints
+                    </a>
+                </div>
+                <div id="collapseOne" class="accordion-body collapse">
+                    <div class="accordion-inner">
+                        <ul>
+                          <li>Description - definition: basic definition of something, e.g., "What is hydroelectricity?"</li>
+                          <li>Description - description: asking for something more than a definition, e.g., "Who was X?", "What are the traits of X?"</li>
+                          <li>Description - manner: "How can I do X?", "How does X work?"</li>
+                          <li>Entity - creative: inventions, works of art, books, and other creative works</li>
+                          <li>Numeric - code: phone number, postal code, airport code, etc.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
         <br />
         <!-- Feedback items for the user -->
         <div><!-- status div -->
@@ -99,7 +118,7 @@ var categories = {
             food: {name: "food and drink"},
             instru: {name: "musical instrument"},
             lang: {name: "languages"},
-            letter: {name: "letters", help: "like a-z, not a letter you send"},
+            letter: {name: "letters (like a-z)", help: "like a-z, not a letter you send"},
             other: {name: "other entities"},
             plant: {name: "plant"},
             product: {name: "product"},
@@ -224,21 +243,16 @@ pybossa.presentTask(function(task, deferred) {
                 alert("You must select a sub-category");
                 return;
             }
-            // if (typeof answer != 'undefined') {
-            // pybossa.saveTask(task.id, answer).done(function() {
+            // save task
+            pybossa.saveTask(task.id, answer).done(function() {
                 $("#success").fadeIn();
-                setTimeout(function () { $("#success").fadeOut(); }, 1000);
+                setTimeout(function () { $("#success").fadeOut(); }, 3000);
                 $("#subcategory").hide();
                 $("#submit").prop("disabled", true);
                 $("#category").val("none");
-                // deferred.resolve();
-            // });
+                deferred.resolve();
+            });
             $("#loading").fadeIn(500);
-            deferred.resolve(); // TESTING
-            // }
-            // else {
-            //     $("#error").show();
-            // }
         });
         $("#loading").hide();
     }

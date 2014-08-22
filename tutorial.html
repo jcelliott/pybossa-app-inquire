@@ -1,0 +1,55 @@
+<div class="row">
+    <div class="col-md-12">
+        <div id="modal" class="modal hide fade">
+            <div class="modal-header">
+                <h3>Question Classification Tutorial</h3>
+            </div>
+
+            <div id="0" class="modal-body" style="max-height: display:none">
+                <p><strong>Hi!</strong> Thanks for helping out with this project. The next page will quickly explain what you have to do, and then you can get started.</p> 
+            </div>
+            
+            <div id="1" class="modal-body" style="display:none">
+                <p>The task is pretty simple. It will show you a question, for example:</p>
+                <p><strong>How fast must a spacecraft travel to escape Earth's gravity?</strong><p>
+
+                <p>You just have to decide what <em>type</em> of question it is. You select a <em>category</em> and then a list of <em>sub-categories</em> will appear. Select the <em>sub-category</em> and then click <em>Submit</em>. That's it!</p>
+
+                <p>So for our example you would choose "Numeric" for the <em>category</em> because the question is asking about some type of number, and then choose "speed" for the <em>sub-category</em> because it's asking about a speed.</p>
+
+                <p>Some questions will be harder to categorize, and some may seem like they belong in multiple categories. That's fine, just make your best guess.</p>
+            </div>
+
+            <div class="modal-footer">
+                <a id="prevBtn" href="#" onclick="showStep('prev')" class="btn">Previous</a>
+                <a id="nextBtn" href="#" onclick="showStep('next')" class="btn btn-success">Next</a>
+                <a id="startContrib" href="../inquire/newtask" class="btn btn-primary" style="display:none"><i class="fa fa-thumbs-o-up"></i>Start Contributing!</a>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    var step = -1;
+    function showStep(action) {
+        $("#" + step).hide();
+        if (action == 'next') {
+            step = step + 1;
+        }
+        if (action == 'prev') {
+            step = step - 1;
+        }
+        if (step == 0) {
+            $("#prevBtn").hide();
+            $("#nextBtn").show();
+            $("#startContrib").hide();
+        } else {
+            $("#prevBtn").show();
+            $("#nextBtn").hide();
+            $("#startContrib").show();
+        }
+        $("#" + step).show();
+    }
+
+    showStep('next');
+    $("#modal").modal('show');
+</script>
